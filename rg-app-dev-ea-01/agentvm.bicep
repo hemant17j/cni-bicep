@@ -25,7 +25,8 @@ resource subnet 'Microsoft.Network/virtualNetworks/subnets@2023-09-01' existing 
 }
 
 var bootstrapScript = loadTextContent('./scripts/bootstrap.ps1')
-var bootstrapCommand = 'powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Set-Content -LiteralPath C:/bootstrap.ps1 -Value ([System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String(''${base64(bootstrapScript)}''))); & C:/bootstrap.ps1"'
+var bootstrapScriptBase64 = base64(bootstrapScript)
+var bootstrapCommand = 'powershell.exe -NoProfile -ExecutionPolicy Bypass -EncodedCommand ${base64(''$script = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String(''${bootstrapScriptBase64}'')); [System.IO.File]::WriteAllText(''C:\bootstrap.ps1'', $script, (New-Object System.Text.UTF8Encoding($false))); & ''C:\bootstrap.ps1'' '')}'
 module vm '../module/windowserver.bicep' = {
   name: 'windowsVm'
   params: {
