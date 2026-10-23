@@ -48,7 +48,7 @@ resource nic 'Microsoft.Network/networkInterfaces@2020-06-01' = {
   }
 }
 
-resource dataDisk 'Microsoft.Compute/disks@2022-03-02' [for i in range(0, numberOfDatadisks): {
+resource dataDisk 'Microsoft.Compute/disks@2022-03-02' = [for i in range(0, numberOfDatadisks): {
   location: location
   name: '${vmName}-datadisk${i}'
   sku: {
