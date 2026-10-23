@@ -24,12 +24,13 @@ resource subnet 'Microsoft.Network/virtualNetworks/subnets@2023-09-01' existing 
   name: subnetName
 }
 
-// Read and Base64-encode the local bootstrap script.
+
 var bootstrapScript = loadTextContent('./scripts/bootstrap.ps1')
 var bootstrapScriptBase64 = base64(bootstrapScript)
 
 // Decode the script, write it to disk, and execute it.
-var bootstrapCommand = 'powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "$s=[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String(''${bootstrapScriptBase64}'')); [System.IO.File]::WriteAllText(''C:/bootstrap.ps1'', $s, (New-Object System.Text.UTF8Encoding($false))); & C:/bootstrap.ps1"'
+var bootstrapCommand = 'powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "$s=[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String(\'${bootstrapScriptBase64}\')); [System.IO.File]::WriteAllText(\'C:/bootstrap.ps1\', $s, (New-Object System.Text.UTF8Encoding($false))); & C:/bootstrap.ps1"'
+
 
 // Deploy the Windows VM.
 module vm '../module/windowserver.bicep' = {
