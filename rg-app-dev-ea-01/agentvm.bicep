@@ -1,14 +1,15 @@
-var networkResourceGroup = 'rg-network-stg'
-var vnetName = 'vnet-shared-stg'
-var subnetName = 'application'
+
+var networkResourceGroup = 'rg-appnet-dev-ea-01'
+var vnetName = 'vnet-app-dev-ea-01'
+var subnetName = 'subnet-app-dev-ea-01'
 
 var vmName = 'vm-buildagent-001'
 var vmSize = 'Standard_D4s_v5'
 var location = resourceGroup().location
-var adminUsername = 'localadmin'
+var adminUsername = 'hemant'
 
 @secure()
-param adminPassword string
+param adminPassword string = 'Hemant@1234567'
 
 resource vnet 'Microsoft.Network/virtualNetworks@2023-09-01' existing = {
   scope: resourceGroup(networkResourceGroup)
@@ -39,9 +40,13 @@ module vm '../modules/windows-vm.bicep' = {
   }
 }
 
+resource deployedVm 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
+  name: vmName
+}
+
 resource bootstrapExtension 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
-  name: '${vmName}/bootstrap'
-  parent: resourceId('Microsoft.Compute/virtualMachines', vmName)
+  parent: deployedVm
+  name: 'bootstrap'
   location: location
   properties: {
     publisher: 'Microsoft.Compute'
