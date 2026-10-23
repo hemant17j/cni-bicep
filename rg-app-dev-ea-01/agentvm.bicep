@@ -2,7 +2,7 @@
 param location string = resourceGroup().location
 
 @secure()
-param adminPassword string = Hemant@1234567
+param adminPassword string = 'Hemant@1234567'
 
 var networkResourceGroup = 'rg-appnet-dev-ea-01'
 var vnetName = 'vnet-app-dev-ea-01'
