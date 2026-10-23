@@ -9,7 +9,7 @@ var vnetName = 'vnet-app-dev-ea-01'
 var subnetName = 'subnet-app-dev-ea-01'
 
 var vmName = 'vm-buildagent-001'
-var vmSize = 'Standard_D4s_v5'
+var vmSize = 'Standard_B2ats_v2'
 var adminUsername = 'hemant'
 
 // Reference the existing virtual network.
