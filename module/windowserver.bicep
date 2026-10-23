@@ -19,23 +19,6 @@ param existingVNETName string
 
 param existingSubnetName string
 
-param enableDcrAssociation bool = false
-
-param perf_log_dcr_rule_id string
-
-param windows_event_log_dcr_rule_id string
-
-// Domain join
-
-param domainFQDN string = 'kestra.local'
-
-param domainJoinUserName string
-
-param ouPath string = 'OU-AVD, OU-Azure, OU-Workstations, OU-KestraCorporate, DC=kestra, DC=local'
-
-@secure()
-param domainJoinUserPassword string
-
 param osVersion string = '2016-Datacenter'
 
 var subnetId = resourceId(
@@ -139,22 +122,4 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
     nic
     dataDisk
   ]
-}
-
-resource perfLogsDcrAssociation 'Microsoft.Insights/dataCollectionRuleAssociations@2021-04-01' = if (enableDcrAssociation) {
-  name: '${vmName}-perf_log_dcr'
-  scope: vm
-  properties: {
-    dataCollectionRuleId: perf_log_dcr_rule_id
-    description: 'DCR association for ${vmName}'
-  }
-}
-
-resource eventLogDcrAssociation 'Microsoft.Insights/dataCollectionRuleAssociations@2021-04-01' = if (enableDcrAssociation) {
-  name: '${vmName}-events_log_dcr'
-  scope: vm
-  properties: {
-    dataCollectionRuleId: windows_event_log_dcr_rule_id
-    description: 'DCR association for ${vmName}'
-  }
 }
