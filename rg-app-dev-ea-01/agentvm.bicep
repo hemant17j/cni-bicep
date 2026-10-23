@@ -12,25 +12,25 @@ var vmName = 'vm-buildagent-001'
 var vmSize = 'Standard_D4s_v5'
 var adminUsername = 'hemant'
 
-// Reference the existing virtual network
+// Reference the existing virtual network.
 resource vnet 'Microsoft.Network/virtualNetworks@2023-09-01' existing = {
   scope: resourceGroup(networkResourceGroup)
   name: vnetName
 }
 
-// Reference the existing subnet
+// Reference the existing subnet.
 resource subnet 'Microsoft.Network/virtualNetworks/subnets@2023-09-01' existing = {
   parent: vnet
   name: subnetName
 }
 
-// Read and encode the local bootstrap script
+// Read and encode the local bootstrap script.
 var bootstrapScriptBase64 = base64(loadTextContent('./scripts/bootstrap.ps1'))
 
-// Decode the script on the Windows VM and execute it
-var bootstrapCommand = 'powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "$s=[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String(\'${bootstrapScriptBase64}\')); Set-Content -LiteralPath C:\\bootstrap.ps1 -Value $s -Encoding UTF8; & C:\\bootstrap.ps1"'
+// Decode the script, write it to disk, and execute it.
+var bootstrapCommand = 'powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "$s=[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String(''${bootstrapScriptBase64}'')); [System.IO.File]::WriteAllText(''C:\\bootstrap.ps1'', $s, (New-Object System.Text.UTF8Encoding($false))); & ''C:\\bootstrap.ps1''"'
 
-// Deploy the Windows VM using the existing module
+// Deploy the Windows VM using the existing module.
 module vm '../module/windowserver.bicep' = {
   name: 'windowsVm'
   params: {
@@ -48,12 +48,12 @@ module vm '../module/windowserver.bicep' = {
   }
 }
 
-// Reference the VM deployed by the module
+// Reference the VM deployed by the module.
 resource deployedVm 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
   name: vmName
 }
 
-// Execute the bootstrap script after VM deployment
+// Execute the bootstrap script after VM deployment.
 resource bootstrapExtension 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
   parent: deployedVm
   name: 'bootstrap'
