@@ -1,15 +1,16 @@
 
+param location string = resourceGroup().location
+
+@secure()
+param adminPassword string
+
 var networkResourceGroup = 'rg-appnet-dev-ea-01'
 var vnetName = 'vnet-app-dev-ea-01'
 var subnetName = 'subnet-app-dev-ea-01'
 
 var vmName = 'vm-buildagent-001'
 var vmSize = 'Standard_D4s_v5'
-var location = resourceGroup().location
 var adminUsername = 'hemant'
-
-@secure()
-param adminPassword string = 'Hemant@1234567'
 
 resource vnet 'Microsoft.Network/virtualNetworks@2023-09-01' existing = {
   scope: resourceGroup(networkResourceGroup)
@@ -21,7 +22,9 @@ resource subnet 'Microsoft.Network/virtualNetworks/subnets@2023-09-01' existing 
   name: subnetName
 }
 
-var bootstrapCommand = 'powershell -ExecutionPolicy Unrestricted -Command "$s=[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String(\'${base64(loadTextContent(\'./scripts/bootstrap.ps1\'))}\')); Set-Content -Path C:\\bootstrap.ps1 -Value $s; & C:\\bootstrap.ps1"'
+var bootstrapScriptBase64 = base64(loadTextContent('./scripts/bootstrap.ps1'))
+
+var bootstrapCommand = 'powershell.exe -ExecutionPolicy Bypass -Command "$s=[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String(''${bootstrapScriptBase64}'')); Set-Content -Path C:\bootstrap.ps1 -Value $s -Encoding UTF8; & C:\bootstrap.ps1"'
 
 module vm '../modules/windows-vm.bicep' = {
   name: 'windowsVm'
